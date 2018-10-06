@@ -14,6 +14,8 @@ import {
   Button,
   FlatList,
 } from 'react-native';
+import { AsyncStorage } from "react-native";
+import Prompt from 'react-native-prompt-crossplatform';
 
 const host = __DEV__ ? '192.168.1.3' : 'chat.duozhihu.xyz';
 
@@ -85,10 +87,18 @@ class ChatScreen extends React.Component {
     super(props);
     const { navigation } = this.props;
     this.state = { 
-      lst: [{name:'xx', msg:"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"}],
+      lst: [],
       aboutToSendText: '',
       room_id: navigation.getParam('room_id', 'NO-ID'),
+      visiblePrompt: true,
+      name: '',
     }
+    AsyncStorage.getItem('name', (err, res) => {
+      if (!res) {
+        this.state.visiblePrompt = true;
+      }
+    });
+
     this._alwaysPullMsg();
   }
   componentDidUpdate(prevProps, prevState){
@@ -127,7 +137,7 @@ class ChatScreen extends React.Component {
         console.log('Client notified socket has closed', event);
       };
 
-      // 关闭Socket.... 
+      // 关闭Socket....
       //socket.close() 
     };
   }
@@ -136,6 +146,26 @@ class ChatScreen extends React.Component {
     const { navigation } = this.props;
     return (
       <View style={{flex:1}}>
+        <Prompt
+          title="你的名字"
+          placeholder="你的名字"
+          inputPlaceholder=""
+          isVisible={this.state.visiblePrompt}
+          onChangeText={(text) => {
+            this.setState({ name: text });
+          }}
+          onCancel={() => {
+            this.setState({
+              name: '懒得起名',
+              visiblePrompt: false,
+            });
+          }}
+          onSubmit={() => {
+            this.setState({
+              visiblePrompt: false,
+            });
+          }}
+        />
         <FlatList
           style={{ 
             paddingTop:10, 
@@ -166,7 +196,7 @@ class ChatScreen extends React.Component {
     if (msg === '') return;
     const data = {
       group_id: this.state.room_id,
-      name: 'xx',
+      name: this.state.name,
       msg: msg,
     };
     console.log(data)
