@@ -91,16 +91,22 @@ class ChatScreen extends React.Component {
     }
     this._alwaysPullMsg();
   }
+  componentDidUpdate(prevProps, prevState){
+
+  }
   _alwaysPullMsg() {
     const room_id = this.state.room_id;
     // 创建一个Socket实例
     var socket = new WebSocket('ws://' + host + ':8080');
+    const scrollToEnd = () => this.refs.lstView.scrollToEnd();
     const appendMsg = (msg) => {
       var lst = this.state.lst;
       lst.push(msg);
-      this.setState({lst})
+      this.setState({ lst });
       // 卷到底部
-      // this.scrollToBottom();
+      setTimeout(() => {
+        scrollToEnd();
+      }, 200);
     }
     const getV = () => this.refs.lstView.getInnerViewNode()
 
@@ -125,6 +131,7 @@ class ChatScreen extends React.Component {
       //socket.close() 
     };
   }
+
   render() {
     const { navigation } = this.props;
     return (
@@ -133,7 +140,7 @@ class ChatScreen extends React.Component {
           style={{ 
             paddingTop:10, 
           }}
-          ref='scrollView'
+          ref='lstView'
           data={this.state.lst}
           renderItem={({ item }) =>
             <Msg name={item.name} msg={item.msg}></Msg>
@@ -153,18 +160,14 @@ class ChatScreen extends React.Component {
       </View>
     );
   }
-  scrollToBottom(animated = true) {
-    // const scrollHeight = this.contentHeight - this.scrollViewHeight;
-    // if (scrollHeight > 0) {
-    //   const scrollResponder = this.refs.scrollView.getScrollResponder();
-    //   scrollResponder.scrollResponderScrollTo({ x: 0, scrollHeight, animated });
-    // }
-  }
+
   _pushMsg() {
+    const msg = this.state.aboutToSendText;
+    if (msg === '') return;
     const data = {
       group_id: this.state.room_id,
       name: 'xx',
-      msg: this.state.aboutToSendText
+      msg: msg,
     };
     console.log(data)
     fetch('http://' + host +'/?a=send_msg&jsonBody', {
