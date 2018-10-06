@@ -34,57 +34,68 @@ class HomeScreen extends React.Component {
   static navigationOptions = {
     title: '不是微信的聊天',
   };
+
+  constructor(props) {
+    super(props);
+    this.state = { lst: [] }
+  }
+
   render() {
+    const host = __DEV__ ? '192.168.1.3' : 'chat.duozhihu.xyz';
+    var data = [];
+    fetch('http://' + host+ '/?api')
+      .then((response) => response.json())
+      .then((responseJson) => {
+        this.setState({
+          isLoading: false,
+          lst: responseJson,
+        }, function () {
+
+        });
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+    console.log(data)
+
     const { navigate } = this.props.navigation;
     return (
       <View style={styles.container}>
         <FlatList
-          data={[
-            { key: 'Devin' },
-            { key: 'Jackson' },
-            { key: 'James' },
-            { key: 'Joel' },
-            { key: 'John' },
-            { key: 'Jillian' },
-            { key: 'Jimmy' },
-            { key: 'Julie' },
-            { key: 'Julie' },
-            { key: 'Julie' },
-            { key: 'Julie' },
-            { key: 'Julie' },
-            { key: 'Julie' },
-            { key: 'Julie' },
-            { key: 'Julie' },
-            { key: 'Julie' },
-            { key: 'Julie' },
-            { key: 'Julie' },
-            { key: 'Julie' },
-            { key: 'Julie' },
-            { key: 'Julie' },
-            { key: 'Julie' },
-          ]}
+          data={this.state.lst}
           renderItem={({ item }) => 
             <Text 
               style={styles.item} 
               onPress={() =>
-                navigate('Profile', { itemId: item.key })
+                navigate('Profile', { itemId: item.id, name: item.name })
               }
-              >{item.key}</Text> }
+            >#{item.id} {item.name}</Text> }
+          keyExtractor={(item, index) => item.id.toString()}
         />
       </View>
     );
   }
 }
-class ProfileScreen extends React.Component {
-  static navigationOptions = {
-    title: 'ProfileScreen',
+class ChatScreen extends React.Component {
+  static navigationOptions = ({ navigation }) => {
+    return {
+      title: navigation.getParam('name', 'A Chat'),
+    };
   };
   render() {
-    const { navigate } = this.props.navigation;
     const { navigation } = this.props;
     const itemId = navigation.getParam('itemId', 'NO-ID');
     return (
-      <Text>{itemId}</Text>
+      <View>
+        <FlatList
+          data={this.state.lst}
+          renderItem={({ item }) =>
+            <Msg name="{item.name}" msg="{item.msg}"></Msg>
+          }
+          keyExtractor={(item, index) => item.id.toString()}
+        />
+        
+      </View>
     );
   }
 }
@@ -107,7 +118,7 @@ const styles = StyleSheet.create({
 
 const App = createStackNavigator({
   Home: { screen: HomeScreen },
-  Profile: { screen: ProfileScreen },
+  Profile: { screen: ChatScreen },
 });
 
 export default App;
