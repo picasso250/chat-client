@@ -99,7 +99,10 @@ class ChatScreen extends React.Component {
       var lst = this.state.lst;
       lst.push(msg);
       this.setState({lst})
+      // 卷到底部
+      // this.scrollToBottom();
     }
+    const getV = () => this.refs.lstView.getInnerViewNode()
 
     // 打开Socket 
     socket.onopen = function (event) {
@@ -110,10 +113,7 @@ class ChatScreen extends React.Component {
       // 监听消息
       socket.onmessage = function (event) {
         var msg = JSON.parse(event.data);
-        
         appendMsg(msg);
-        // 卷到底部
-        // $("html, body").animate({ scrollTop: $(document).height() }, 1000);
       };
 
       // 监听Socket的关闭
@@ -128,23 +128,37 @@ class ChatScreen extends React.Component {
   render() {
     const { navigation } = this.props;
     return (
-      <View>
+      <View style={{flex:1}}>
         <FlatList
+          style={{ 
+            paddingTop:10, 
+          }}
+          ref='scrollView'
           data={this.state.lst}
           renderItem={({ item }) =>
             <Msg name={item.name} msg={item.msg}></Msg>
           }
           keyExtractor={(item, index) => index.toString()}
         />
-        <TextInput
-          style={{ height: 40 }}
-          placeholder="说点什么"
-          onChangeText={(text) => this.setState({ aboutToSendText: text })}
-          value={this.state.aboutToSendText}
-        />
-        <Button onPress={(text) => this._pushMsg()} title="发送"></Button>
+        <View style={{
+          }}>
+          <TextInput
+            style={{ height: 40 }}
+            placeholder="说点什么"
+            onChangeText={(text) => this.setState({ aboutToSendText: text })}
+            value={this.state.aboutToSendText}
+          />
+          <Button onPress={(text) => this._pushMsg()} title="发送"></Button>
+        </View>
       </View>
     );
+  }
+  scrollToBottom(animated = true) {
+    // const scrollHeight = this.contentHeight - this.scrollViewHeight;
+    // if (scrollHeight > 0) {
+    //   const scrollResponder = this.refs.scrollView.getScrollResponder();
+    //   scrollResponder.scrollResponderScrollTo({ x: 0, scrollHeight, animated });
+    // }
   }
   _pushMsg() {
     const data = {
