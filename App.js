@@ -63,7 +63,13 @@ class HomeScreen extends React.Component {
             { key: 'Julie' },
             { key: 'Julie' },
           ]}
-          renderItem={({ item }) => <Msg name={item.key} msg={item.key}></Msg> }
+          renderItem={({ item }) => 
+            <Text 
+              style={styles.item} 
+              onPress={() =>
+                navigate('Profile', { itemId: item.key })
+              }
+              >{item.key}</Text> }
         />
       </View>
     );
@@ -75,13 +81,10 @@ class ProfileScreen extends React.Component {
   };
   render() {
     const { navigate } = this.props.navigation;
+    const { navigation } = this.props;
+    const itemId = navigation.getParam('itemId', 'NO-ID');
     return (
-      <Button
-        title="Go to Jane's profile"
-        onPress={() =>
-          navigate('Profile', { name: 'Jane' })
-        }
-      />
+      <Text>{itemId}</Text>
     );
   }
 }
