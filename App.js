@@ -54,8 +54,6 @@ class HomeScreen extends React.Component {
         console.error(error);
       });
 
-    _alwaysPullMsg();
-    
   }
 
   render() {
@@ -89,8 +87,43 @@ class ChatScreen extends React.Component {
     this.state = { 
       lst: [{name:'xx', msg:"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"}],
       aboutToSendText: '',
-      id: navigation.getParam('room_id', 'NO-ID'),
+      room_id: navigation.getParam('room_id', 'NO-ID'),
     }
+    this._alwaysPullMsg();
+  }
+  _alwaysPullMsg() {
+    const room_id = this.state.room_id;
+    // 创建一个Socket实例
+    var socket = new WebSocket('ws://' + host + ':8080');
+    const appendMsg = (msg) => {
+      var lst = this.state.lst;
+      lst.push(msg);
+      this.setState({lst})
+    }
+
+    // 打开Socket 
+    socket.onopen = function (event) {
+
+      // 发送一个初始化消息
+      socket.send(room_id.toString());
+
+      // 监听消息
+      socket.onmessage = function (event) {
+        var msg = JSON.parse(event.data);
+        
+        appendMsg(msg);
+        // 卷到底部
+        // $("html, body").animate({ scrollTop: $(document).height() }, 1000);
+      };
+
+      // 监听Socket的关闭
+      socket.onclose = function (event) {
+        console.log('Client notified socket has closed', event);
+      };
+
+      // 关闭Socket.... 
+      //socket.close() 
+    };
   }
   render() {
     const { navigation } = this.props;
@@ -115,7 +148,7 @@ class ChatScreen extends React.Component {
   }
   _pushMsg() {
     const data = {
-      group_id: this.state.id,
+      group_id: this.state.room_id,
       name: 'xx',
       msg: this.state.aboutToSendText
     };
