@@ -16,6 +16,7 @@ import {
 } from 'react-native';
 import { AsyncStorage } from "react-native";
 import Prompt from 'react-native-prompt-crossplatform';
+import { Keyboard } from 'react-native'; 
 
 const host = __DEV__ ? '192.168.1.3' : 'chat.duozhihu.xyz';
 
@@ -77,6 +78,9 @@ class HomeScreen extends React.Component {
     );
   }
 }
+
+// const { DeviceEventEmitter } = React
+
 class ChatScreen extends React.Component {
   static navigationOptions = ({ navigation }) => {
     return {
@@ -90,8 +94,9 @@ class ChatScreen extends React.Component {
       lst: [],
       aboutToSendText: '',
       room_id: navigation.getParam('room_id', 'NO-ID'),
-      visiblePrompt: true,
+      visiblePrompt: false,
       name: '',
+      btnLocation: 0,
     }
     AsyncStorage.getItem('name', (err, res) => {
       if (!res) {
@@ -101,9 +106,23 @@ class ChatScreen extends React.Component {
 
     this._alwaysPullMsg();
   }
-  componentDidUpdate(prevProps, prevState){
-
+  componentWillMount() {
+    console.log('componentWillMount')
+    this.keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', this._keyboardDidShow.bind(this));
+    this.keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', this._keyboardDidHide.bind(this));
   }
+
+  _keyboardDidShow(e) {
+    alert('Keyboard Shown');
+    console.log(e.endCoordinates.height);
+    this.setState({ btnLocation: e.endCoordinates.height })
+  }
+
+  _keyboardDidHide() {
+    alert('Keyboard Hidden');
+    this.setState({ btnLocation: 0 });
+  }
+
   _alwaysPullMsg() {
     const room_id = this.state.room_id;
     // 创建一个Socket实例
@@ -149,7 +168,7 @@ class ChatScreen extends React.Component {
         <Prompt
           title="你的名字"
           placeholder="你的名字"
-          inputPlaceholder=""
+          inputPlaceholder="你的名字"
           isVisible={this.state.visiblePrompt}
           onChangeText={(text) => {
             this.setState({ name: text });
@@ -164,6 +183,7 @@ class ChatScreen extends React.Component {
             this.setState({
               visiblePrompt: false,
             });
+            AsyncStorage.setItem('name', this.state.name);
           }}
         />
         <FlatList
@@ -178,6 +198,7 @@ class ChatScreen extends React.Component {
           keyExtractor={(item, index) => index.toString()}
         />
         <View style={{
+          bottom: this.btnLocation,
           }}>
           <TextInput
             style={{ height: 40 }}
@@ -219,9 +240,11 @@ const styles = StyleSheet.create({
     paddingTop: 22
   },
   item: {
-    padding: 10,
+    padding: 15,
     fontSize: 18,
-    height: 44,
+    height: 64,
+    borderWidth: 0.5,
+    borderColor: '#d6d7da',
   },
   name: {
     color: '#666666',
