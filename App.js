@@ -36,13 +36,39 @@ class Msg extends React.Component {
 }
 
 class HomeScreen extends React.Component {
-  static navigationOptions = {
-    title: '不是微信的聊天',
+  
+  static navigationOptions = ({ navigation, navigationOptions }) => {
+    const _showPrompt = () => {
+      
+    }
+    const { params = {} } = navigation.state
+    return {
+      title: '不是微信的聊天',
+      headerRight: (
+        <Button
+          onPress={() => params.handleRemove()}
+          title="我"
+        />
+      ),
+    }
   };
+
+  componentDidMount() {
+    this.props.navigation.setParams({ handleRemove: this.removeVehicle })
+  }
+
+  removeVehicle = () => {
+    this.setState({ visiblePrompt: true })
+  }
 
   constructor(props) {
     super(props);
-    this.state = { lst: [] }
+    this.state = {
+      lst: [],
+      visiblePrompt: false,
+      name: '',
+    }
+    
     fetch('http://' + host + '/?api')
       .then((response) => response.json())
       .then((responseJson) => {
@@ -63,6 +89,27 @@ class HomeScreen extends React.Component {
     const { navigate } = this.props.navigation;
     return (
       <View style={styles.container}>
+        <Prompt
+          title="你的名字"
+          placeholder="你的名字"
+          inputPlaceholder="你的名字"
+          isVisible={this.state.visiblePrompt}
+          onChangeText={(text) => {
+            this.setState({ name: text });
+          }}
+          onCancel={() => {
+            this.setState({
+              name: '懒得起名',
+              visiblePrompt: false,
+            });
+          }}
+          onSubmit={() => {
+            this.setState({
+              visiblePrompt: false,
+            });
+            AsyncStorage.setItem('name', this.state.name);
+          }}
+        />
         <FlatList
           data={this.state.lst}
           renderItem={({ item }) => 
@@ -79,8 +126,6 @@ class HomeScreen extends React.Component {
   }
 }
 
-// const { DeviceEventEmitter } = React
-
 class ChatScreen extends React.Component {
   static navigationOptions = ({ navigation }) => {
     return {
@@ -94,14 +139,11 @@ class ChatScreen extends React.Component {
       lst: [],
       aboutToSendText: '',
       room_id: navigation.getParam('room_id', 'NO-ID'),
-      visiblePrompt: false,
       name: '',
       btnLocation: 0,
     }
     AsyncStorage.getItem('name', (err, res) => {
-      if (!res) {
-        this.state.visiblePrompt = true;
-      }
+      this.setState({name:res})
     });
 
     this._alwaysPullMsg();
@@ -117,7 +159,6 @@ class ChatScreen extends React.Component {
   }
 
   _keyboardDidHide() {
-    // alert('Keyboard Hidden');
     this.setState({ btnLocation: 0 });
   }
 
@@ -135,7 +176,6 @@ class ChatScreen extends React.Component {
         scrollToEnd();
       }, 200);
     }
-    const getV = () => this.refs.lstView.getInnerViewNode()
 
     // 打开Socket 
     socket.onopen = function (event) {
@@ -163,27 +203,6 @@ class ChatScreen extends React.Component {
     const { navigation } = this.props;
     return (
       <View style={{flex:1}}>
-        <Prompt
-          title="你的名字"
-          placeholder="你的名字"
-          inputPlaceholder="你的名字"
-          isVisible={this.state.visiblePrompt}
-          onChangeText={(text) => {
-            this.setState({ name: text });
-          }}
-          onCancel={() => {
-            this.setState({
-              name: '懒得起名',
-              visiblePrompt: false,
-            });
-          }}
-          onSubmit={() => {
-            this.setState({
-              visiblePrompt: false,
-            });
-            AsyncStorage.setItem('name', this.state.name);
-          }}
-        />
         <FlatList
           style={{ 
             paddingTop:10, 

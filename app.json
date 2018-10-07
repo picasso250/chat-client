@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "NotWeixinChat",
-    "description": "a chat client",
+    "description": "a chat client\n聊天客户端（网页版在 http://chat.duozhihu.xyz/ ）",
     "slug": "NotWeixinChat",
     "privacy": "public",
     "sdkVersion": "30.0.0",
