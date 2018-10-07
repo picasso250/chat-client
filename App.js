@@ -18,7 +18,7 @@ import { AsyncStorage } from "react-native";
 import Prompt from 'react-native-prompt-crossplatform';
 import { Keyboard } from 'react-native'; 
 
-const host = __DEV__ ? '192.168.1.3' : 'chat.duozhihu.xyz';
+const host = __DEV__ ? '192.168.1.3:8000' : 'chat.duozhihu.xyz';
 
 class Msg extends React.Component {
   render() {
@@ -107,26 +107,24 @@ class ChatScreen extends React.Component {
     this._alwaysPullMsg();
   }
   componentWillMount() {
-    console.log('componentWillMount')
     this.keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', this._keyboardDidShow.bind(this));
     this.keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', this._keyboardDidHide.bind(this));
   }
 
   _keyboardDidShow(e) {
-    alert('Keyboard Shown');
     console.log(e.endCoordinates.height);
     this.setState({ btnLocation: e.endCoordinates.height })
   }
 
   _keyboardDidHide() {
-    alert('Keyboard Hidden');
+    // alert('Keyboard Hidden');
     this.setState({ btnLocation: 0 });
   }
 
   _alwaysPullMsg() {
     const room_id = this.state.room_id;
     // 创建一个Socket实例
-    var socket = new WebSocket('ws://' + host + ':8080');
+    var socket = new WebSocket(__DEV__ ? ('ws://' + '192.168.1.3:8080'):('ws://' + host + ':8080'));
     const scrollToEnd = () => this.refs.lstView.scrollToEnd();
     const appendMsg = (msg) => {
       var lst = this.state.lst;
@@ -198,7 +196,11 @@ class ChatScreen extends React.Component {
           keyExtractor={(item, index) => index.toString()}
         />
         <View style={{
-          bottom: this.btnLocation,
+          position: this.state.btnLocation==0?"relative":"absolute",
+          bottom: this.state.btnLocation,
+          left: 0,
+          right: 0,
+          backgroundColor: "#ffffff",
           }}>
           <TextInput
             style={{ height: 40 }}
@@ -227,6 +229,7 @@ class ChatScreen extends React.Component {
     }).then((response) => response.json())
     .then((responseJson) => {
       this.setState({ aboutToSendText:''})
+      Keyboard.dismiss();
     })
     .catch((error) => {
       console.error(error);
