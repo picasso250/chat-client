@@ -93,6 +93,9 @@ class HomeScreen extends React.Component {
           title="你的名字"
           placeholder="你的名字"
           inputPlaceholder="你的名字"
+          defaultValue={this.state.name}
+          submitButtonText="好的！"
+          cancelButtonText="懒得起名"
           isVisible={this.state.visiblePrompt}
           onChangeText={(text) => {
             this.setState({ name: text });
