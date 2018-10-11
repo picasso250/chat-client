@@ -144,6 +144,7 @@ class ChatScreen extends React.Component {
       room_id: navigation.getParam('room_id', 'NO-ID'),
       name: '',
       btnLocation: 0,
+      refreshing: false,
     }
     AsyncStorage.getItem('name', (err, res) => {
       this.setState({name: res?res:'懒得起名'});
@@ -157,7 +158,6 @@ class ChatScreen extends React.Component {
   }
 
   _keyboardDidShow(e) {
-    console.log(e.endCoordinates.height);
     this.setState({ btnLocation: e.endCoordinates.height })
   }
 
@@ -177,7 +177,9 @@ class ChatScreen extends React.Component {
     const appendMsg = (msg) => {
       var lst = this.state.lst;
       lst.push(msg);
+
       this.setState({ lst });
+      this.setState({ refreshing: false });
       // 卷到底部
       setTimeout(() => {
         scrollToEnd();
@@ -220,6 +222,7 @@ class ChatScreen extends React.Component {
             <Msg name={item.name} msg={item.msg}></Msg>
           }
           keyExtractor={(item, index) => index.toString()}
+          refreshing={this.state.refreshing}
         />
         <View style={{
           position: this.state.btnLocation==0?"relative":"absolute",
@@ -249,6 +252,7 @@ class ChatScreen extends React.Component {
       msg: msg,
     };
     console.log(data)
+    this.setState({ refreshing: true });
     fetch('http://' + host +'/?a=send_msg&jsonBody', {
       method: 'POST',
       body: JSON.stringify(data),
