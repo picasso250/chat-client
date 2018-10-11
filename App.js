@@ -146,7 +146,7 @@ class ChatScreen extends React.Component {
       btnLocation: 0,
     }
     AsyncStorage.getItem('name', (err, res) => {
-      this.setState({name:res})
+      this.setState({name: res?res:'懒得起名'});
     });
 
     this._alwaysPullMsg();
@@ -169,7 +169,11 @@ class ChatScreen extends React.Component {
     const room_id = this.state.room_id;
     // 创建一个Socket实例
     var socket = new WebSocket(__DEV__ ? ('ws://' + '192.168.1.3:8080'):('ws://' + host + ':8080'));
-    const scrollToEnd = () => this.refs.lstView.scrollToEnd();
+    let scrollToEnd = () => {
+      if (this._lstView !== null) {
+        this._lstView.scrollToEnd();
+      }
+    } 
     const appendMsg = (msg) => {
       var lst = this.state.lst;
       lst.push(msg);
@@ -210,7 +214,7 @@ class ChatScreen extends React.Component {
           style={{ 
             paddingTop:10, 
           }}
-          ref='lstView'
+          ref={(c) => this._lstView = c}
           data={this.state.lst}
           renderItem={({ item }) =>
             <Msg name={item.name} msg={item.msg}></Msg>
