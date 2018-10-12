@@ -24,10 +24,10 @@ class Msg extends React.Component {
   render() {
     return (
       <View style={{ flex: 1, flexDirection: 'column' }}>
-        <View style={{ marginLeft: 10 }} >
+        <View style={{ marginLeft: 10, paddingLeft: 20 }} >
           <Text style={styles.name}>{this.props.name}</Text>
         </View>
-        <View style={{ margin: 10 }} >
+        <View style={{ margin: 10, paddingRight: 50 }} >
           <Text style={styles.msg}>{this.props.msg}</Text>
         </View>
       </View>
@@ -211,7 +211,7 @@ class ChatScreen extends React.Component {
   render() {
     const { navigation } = this.props;
     return (
-      <View style={{flex:1}}>
+      <View style={{flex:1,backgroundColor:"#ffffff"}}>
         <FlatList
           style={{ 
             paddingTop:10, 
@@ -270,19 +270,26 @@ class ChatScreen extends React.Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 22
+    paddingTop: 22,
+    backgroundColor: "#efeff7",
   },
   item: {
-    padding: 15,
+    padding: 18,
     fontSize: 18,
-    height: 64,
-    borderWidth: 0.5,
-    borderColor: '#d6d7da',
+    height: 68,
+    margin: 10,
+    borderRadius: 5,
+    backgroundColor: "#ffffff",
   },
   name: {
     color: '#666666',
     fontSize: 12,
   },
+  msg: {
+    backgroundColor: "#e7eff7",
+    padding: 15,
+    borderRadius: 25,
+  }
 })
 
 const App = createStackNavigator({
