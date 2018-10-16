@@ -168,7 +168,8 @@ class ChatScreen extends React.Component {
   _alwaysPullMsg() {
     const room_id = this.state.room_id;
     // 创建一个Socket实例
-    var socket = new WebSocket(__DEV__ ? ('ws://' + '192.168.1.3:8080'):('ws://' + host + ':8080'));
+    let url = __DEV__ ? ('ws://' + '192.168.1.3:8080'):('wss://' + host + ':444');
+    var socket = new WebSocket(url);
     let scrollToEnd = () => {
       if (this._lstView !== null) {
         this._lstView.scrollToEnd();
